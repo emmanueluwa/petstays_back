@@ -45,7 +45,8 @@ router.post(
       res.cookie("auth_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 86400000,
+        sameSite: "none",
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       });
       return res.status(200).send({ message: "user registered" });
     } catch (error) {
