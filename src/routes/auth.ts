@@ -61,9 +61,10 @@ router.get("/validate-token", verifyToken, (req: Request, res: Response) => {
 
 router.post("/logout", (req: Request, res: Response) => {
   res.cookie("auth_token", "", {
-    secure: true,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "none",
-    expires: new Date(0),
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
   });
 
   res.send();
