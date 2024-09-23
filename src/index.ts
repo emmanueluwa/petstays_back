@@ -10,6 +10,11 @@ mongoose
   .connect(process.env.MONGODB_CONNECTION_STRING as string)
   .then(() => console.log("connected to db :)"));
 
+const allowedOrigin =
+  process.env.NODE_ENV === "development"
+    ? process.env.FRONTEND_URL
+    : process.env.FRONTEND_PROD_URL;
+
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
