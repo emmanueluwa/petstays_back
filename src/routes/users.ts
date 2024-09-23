@@ -46,7 +46,7 @@ router.post(
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "none",
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        maxAge: 86400000,
       });
       return res.status(200).send({ message: "user registered" });
     } catch (error) {
