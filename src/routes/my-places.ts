@@ -60,10 +60,10 @@ router.post(
       res.status(201).send(place);
     } catch (error: any) {
       console.log("Error creating place", error);
-      res
-        .status(500)
-        .json({ message: "Error creating place", error: error.message });
-      // res.status(500).json({ message: "Something went wrong" });
+      // res
+      //   .status(500)
+      //   .json({ message: "Error creating place", error: error.message });
+      res.status(500).json({ message: "Something went wrong" });
     }
   }
 );
