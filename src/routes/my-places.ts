@@ -82,7 +82,7 @@ router.get("/:id", verifyToken, async (req: Request, res: Response) => {
   const id = req.params.id.toString();
 
   try {
-    const place = await Place.find({
+    const place = await Place.findOne({
       _id: id,
       userId: req.userId,
     });
