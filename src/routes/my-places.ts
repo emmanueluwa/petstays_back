@@ -78,4 +78,20 @@ router.get("/", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
+router.get("/:id", verifyToken, async (req: Request, res: Response) => {
+  const id = req.params.id.toString();
+
+  try {
+    const place = await Place.find({
+      _id: id,
+      userId: req.userId,
+    });
+
+    res.json(place);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "something went wrong" });
+  }
+});
+
 export default router;
