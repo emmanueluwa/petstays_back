@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import multer from "multer";
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "cloudinary";
 import Place, { PlaceType } from "../models/place";
 import verifyToken from "../middleware/auth";
 import { body } from "express-validator";
@@ -42,8 +42,8 @@ router.post(
 
       const uploadPromises = imageFiles.map(async (image) => {
         const b64 = Buffer.from(image.buffer).toString("base64");
-        let dataURI = "data:" + image.mimetype + ";base63," + b64;
-        const res = await cloudinary.uploader.upload(dataURI);
+        let dataURI = "data:" + image.mimetype + ";base64," + b64;
+        const res = await cloudinary.v2.uploader.upload(dataURI);
         return res.url;
       });
 
