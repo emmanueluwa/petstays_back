@@ -1,21 +1,5 @@
 import mongoose from "mongoose";
-
-export type PlaceType = {
-  _id: string;
-  userId: string;
-  name: string;
-  city: string;
-  country: string;
-  description: string;
-  type: string;
-  adultCount: number;
-  childCount: number;
-  facilities: string[];
-  pricePerNight: number;
-  starRating: number;
-  imageUrls: string[];
-  lastUpdated: Date;
-};
+import { PlaceType } from "../utils/types";
 
 const placeSchema = new mongoose.Schema<PlaceType>({
   userId: { type: String, required: true },

@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth";
 import myPlaceRoutes from "./routes/my-places";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
+import placeRoutes from "./routes/places";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -36,6 +37,7 @@ app.get("/health", async (req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/my-places", myPlaceRoutes);
+app.use("/api/places", placeRoutes);
 
 app.listen(7000, () => {
   console.log("server running on localhost:7000 :)");

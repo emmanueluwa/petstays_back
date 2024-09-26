@@ -1,9 +1,10 @@
 import express, { Request, Response } from "express";
 import multer from "multer";
 import cloudinary from "cloudinary";
-import Place, { PlaceType } from "../models/place";
 import verifyToken from "../middleware/auth";
 import { body } from "express-validator";
+import { PlaceType } from "../utils/types";
+import Place from "../models/place";
 
 const router = express.Router();
 
