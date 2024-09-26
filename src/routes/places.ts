@@ -34,7 +34,7 @@ router.get("/search", async (req: Request, res: Response) => {
       .skip(skip)
       .limit(pageSize);
 
-    const total = await Place.countDocuments();
+    const total = await Place.countDocuments(query);
 
     const response: PlaceSearchResponse = {
       data: places,
