@@ -4,7 +4,7 @@ import { PlaceSearchResponse } from "../utils/types";
 
 const router = express.Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/search", async (req: Request, res: Response) => {
   try {
     const pageSize = 5;
     const pageNumber = parseInt(
