@@ -96,7 +96,7 @@ router.post(
     const totalCost = place.pricePerNight * numberOfNights;
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalCost,
+      amount: totalCost * 100,
       currency: "gbp",
       metadata: {
         placeId,
@@ -135,7 +135,7 @@ router.post(
 
       if (
         paymentIntent.metadata.placeId !== req.params.placeId ||
-        paymentIntent.metadata.userId !== req.params.userId
+        paymentIntent.metadata.userId !== req.userId
       ) {
         return res.status(400).json({ message: "payment intent mismatch" });
       }
