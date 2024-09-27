@@ -57,6 +57,16 @@ router.get("/search", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/", async (req: Request, res: Response) => {
+  try {
+    const places = await Place.find().sort("-lastUpdated");
+    res.json(places);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "something went wrong" });
+  }
+});
+
 router.get(
   "/:id",
   [param("id").notEmpty().withMessage("Place ID is required")],
