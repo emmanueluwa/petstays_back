@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import Place from "../models/place";
-import { PlaceSearchResponse } from "../utils/types";
+import { BookingType, PlaceSearchResponse } from "../utils/types";
 import { param, validationResult } from "express-validator";
 import Stripe from "stripe";
 import verifyToken from "../middleware/auth";
@@ -115,6 +115,59 @@ router.post(
     };
 
     res.send(response);
+  }
+);
+
+router.post(
+  "/:placeId/bookings",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const paymentIntentId = req.body.paymentIntentId;
+
+      const paymentIntent = await stripe.paymentIntents.retrieve(
+        paymentIntentId as string
+      );
+
+      if (!paymentIntent) {
+        return res.status(400).json({ message: "payment intent not found" });
+      }
+
+      if (
+        paymentIntent.metadata.placeId !== req.params.placeId ||
+        paymentIntent.metadata.userId !== req.params.userId
+      ) {
+        return res.status(400).json({ message: "payment intent mismatch" });
+      }
+
+      if (paymentIntent.status !== "succeeded") {
+        return res.status(400).json({
+          message: `payment intent not succeeded. Status: ${paymentIntent.status}`,
+        });
+      }
+
+      const newBooking: BookingType = {
+        ...req.body,
+        userId: req.userId,
+      };
+
+      const place = await Place.findOneAndUpdate(
+        { _id: req.params.placeId },
+        {
+          $push: { bookings: newBooking },
+        }
+      );
+
+      if (!place) {
+        return res.status(400).json({ message: "place not found" });
+      }
+
+      await place.save();
+      res.status(200).send();
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "something went wrong" });
+    }
   }
 );
 
