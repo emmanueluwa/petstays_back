@@ -2,6 +2,10 @@ import express, { Request, Response } from "express";
 import Place from "../models/place";
 import { PlaceSearchResponse } from "../utils/types";
 import { param, validationResult } from "express-validator";
+import Stripe from "stripe";
+import verifyToken from "../middleware/auth";
+
+const stripe = new Stripe(process.env.STRIPE_API_KEY as string);
 
 const router = express.Router();
 
@@ -52,6 +56,67 @@ router.get("/search", async (req: Request, res: Response) => {
     res.status(500).json({ message: "something went wrong" });
   }
 });
+
+router.get(
+  "/:id",
+  [param("id").notEmpty().withMessage("Place ID is required")],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = req.params.id.toString();
+
+    try {
+      const place = await Place.findById(id);
+      res.json(place);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error fetching place" });
+    }
+  }
+);
+
+router.post(
+  "/:placeId/bookings/payment-intent",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    const { numberOfNights } = req.body;
+    const placeId = req.params.placeId;
+
+    const place = await Place.findById(placeId);
+    if (!place) {
+      return res.status(400).json({ message: "place not found" });
+    }
+
+    //data integrity and security
+    //calculates on backend - most updated cost - prevents hacker entering own price per night before sending to backends
+    const totalCost = place.pricePerNight * numberOfNights;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: totalCost,
+      currency: "gbp",
+      metadata: {
+        placeId,
+        userId: req.userId,
+      },
+    });
+
+    if (!paymentIntent.client_secret) {
+      return res.status(500).json({ message: "something went wrong" });
+    }
+
+    const response = {
+      paymentIntentId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret.toString(),
+      totalCost,
+    };
+
+    res.send(response);
+  }
+);
 
 const constructSearchQuery = (queryParams: any) => {
   let constructedQuery: any = {};
@@ -112,27 +177,5 @@ const constructSearchQuery = (queryParams: any) => {
 
   return constructedQuery;
 };
-
-router.get(
-  "/:id",
-  [param("id").notEmpty().withMessage("Place ID is required")],
-  async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const id = req.params.id.toString();
-
-    try {
-      const place = await Place.findById(id);
-      res.json(place);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error fetching place" });
-    }
-  }
-);
 
 export default router;
