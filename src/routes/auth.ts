@@ -11,9 +11,10 @@ router.post(
   "/login",
   [
     check("email", "Email is required").isEmail(),
-    check("password", "Password with 6 characters or more is required")
-      .isEmail()
-      .isLength({ min: 6 }),
+    check(
+      "password",
+      "Password with 6 characters or more is required"
+    ).isLength({ min: 6 }),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
