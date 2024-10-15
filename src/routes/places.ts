@@ -15,14 +15,11 @@ router.get("/search", async (req: Request, res: Response) => {
 
     let sortOptions = {};
     switch (req.query.sortOption) {
-      case "starRating":
-        sortOptions = { starRating: -1 };
+      case "pricePerMonthAsc":
+        sortOptions = { pricePerMonth: 1 };
         break;
-      case "pricePerNightAsc":
-        sortOptions = { pricePerNight: 1 };
-        break;
-      case "pricePerNightDesc":
-        sortOptions = { pricePerNight: -1 };
+      case "pricePerMonthDesc":
+        sortOptions = { pricePerMonth: -1 };
         break;
     }
 
@@ -184,56 +181,56 @@ router.post(
 const constructSearchQuery = (queryParams: any) => {
   let constructedQuery: any = {};
 
-  if (queryParams.destination) {
+  if (queryParams.location) {
     constructedQuery.$or = [
-      { city: new RegExp(queryParams.destination, "i") },
-      { country: new RegExp(queryParams.destination, "i") },
+      { city: new RegExp(queryParams.location, "i") },
+      { country: new RegExp(queryParams.location, "i") },
     ];
   }
 
-  if (queryParams.adultCount) {
-    constructedQuery.adultCount = {
-      $gte: parseInt(queryParams.adultCount),
+  if (queryParams.bedrooms) {
+    constructedQuery.bedrooms = {
+      $gte: parseInt(queryParams.bedrooms),
     };
   }
 
-  if (queryParams.childCount) {
-    constructedQuery.childCount = {
-      $gte: parseInt(queryParams.childCount),
+  if (queryParams.bathrooms) {
+    constructedQuery.bathrooms = {
+      $gte: parseInt(queryParams.bathrooms),
     };
   }
 
-  if (queryParams.facilities) {
-    constructedQuery.facilities = {
-      $all: Array.isArray(queryParams.facilities)
-        ? queryParams.facilities
-        : [queryParams.facilities],
-    };
-  }
+  // if (queryParams.facilities) {
+  //   constructedQuery.facilities = {
+  //     $all: Array.isArray(queryParams.facilities)
+  //       ? queryParams.facilities
+  //       : [queryParams.facilities],
+  //   };
+  // }
 
-  if (queryParams.types) {
-    constructedQuery.type = {
-      $in: Array.isArray(queryParams.types)
-        ? queryParams.types
-        : [queryParams.types],
-    };
-  }
+  // if (queryParams.types) {
+  //   constructedQuery.type = {
+  //     $in: Array.isArray(queryParams.types)
+  //       ? queryParams.types
+  //       : [queryParams.types],
+  //   };
+  // }
 
   //   if (queryParams.stars) {
   //     const starRating = parseInt(queryParams.stars.toString());
   //     constructedQuery.starRating = { $eq: starRating };
   //   }
 
-  if (queryParams.stars) {
-    const starRatings = Array.isArray(queryParams.stars)
-      ? queryParams.stars.map((star: string) => parseInt(star))
-      : parseInt(queryParams.stars);
+  // if (queryParams.stars) {
+  //   const starRatings = Array.isArray(queryParams.stars)
+  //     ? queryParams.stars.map((star: string) => parseInt(star))
+  //     : parseInt(queryParams.stars);
 
-    constructedQuery.starRating = { $in: starRatings };
-  }
+  //   constructedQuery.starRating = { $in: starRatings };
+  // }
 
   if (queryParams.maxPrice) {
-    constructedQuery.pricePerNight = {
+    constructedQuery.pricePerMonth = {
       $lte: parseInt(queryParams.maxPrice).toString(),
     };
   }
