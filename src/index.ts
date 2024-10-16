@@ -17,17 +17,21 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const mainConnection = mongoose.createConnection(
-  process.env.MONGODB_CONNECTION_STRING as string
-);
+mongoose
+  .connect(process.env.MONGODB_CONNECTION_STRING as string)
+  .then(() => console.log("connected to db :)"));
 
-mainConnection.on("connected", () => {
-  console.log("Connected to main database :)");
-});
+// export const mainConnection = mongoose.createConnection(
+//   process.env.MONGODB_CONNECTION_STRING as string
+// );
 
-mainConnection.on("error", (err) => {
-  console.error("Error connecting to main db :(", err);
-});
+// mainConnection.on("connected", () => {
+//   console.log("Connected to main database :)");
+// });
+
+// mainConnection.on("error", (err) => {
+//   console.error("Error connecting to main db :(", err);
+// });
 
 export const scrapeConnection = mongoose.createConnection(
   process.env.MONGODB_CONNECTION2_STRING as string
@@ -41,7 +45,7 @@ scrapeConnection.on("error", (err) => {
   console.error("Error connecting to main db :(", err);
 });
 
-export const mainConnectionReady = mainConnection.asPromise();
+// export const mainConnectionReady = mainConnection.asPromise();
 export const scrapeConnectionReady = scrapeConnection.asPromise();
 
 const app = express();

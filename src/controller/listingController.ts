@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { initModels } from "../models/area";
 import { validationResult } from "express-validator";
 import { listingModels } from "../models/openListings";
+import mongoose from "mongoose";
 
 const searchListings = async (req: Request, res: Response) => {
   try {
@@ -77,6 +78,7 @@ const getListings = async (req: Request, res: Response) => {
 
 const getListingById = async (req: Request, res: Response) => {
   const { openrentListing } = await listingModels();
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -87,7 +89,14 @@ const getListingById = async (req: Request, res: Response) => {
 
   try {
     const id = req.params.id.toString();
-    const listing = await openrentListing.findById({ _id: id });
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    const objectId = new mongoose.Types.ObjectId(id);
+
+    const listing = await openrentListing.findOne({ _id: objectId });
     res.json(listing);
   } catch (error) {
     console.log(error);
