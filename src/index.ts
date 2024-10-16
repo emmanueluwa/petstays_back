@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
 import placeRoutes from "./routes/places";
 import bookingRoutes from "./routes/my-bookings";
+import listingRoutes from "./routes/listings";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,9 +17,32 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-mongoose
-  .connect(process.env.MONGODB_CONNECTION_STRING as string)
-  .then(() => console.log("connected to db :)"));
+export const mainConnection = mongoose.createConnection(
+  process.env.MONGODB_CONNECTION_STRING as string
+);
+
+mainConnection.on("connected", () => {
+  console.log("Connected to main database :)");
+});
+
+mainConnection.on("error", (err) => {
+  console.error("Error connecting to main db :(", err);
+});
+
+export const scrapeConnection = mongoose.createConnection(
+  process.env.MONGODB_CONNECTION2_STRING as string
+);
+
+scrapeConnection.on("connected", () => {
+  console.log("Connected to scrape database :)");
+});
+
+scrapeConnection.on("error", (err) => {
+  console.error("Error connecting to main db :(", err);
+});
+
+export const mainConnectionReady = mainConnection.asPromise();
+export const scrapeConnectionReady = scrapeConnection.asPromise();
 
 const app = express();
 app.use(cookieParser());
@@ -40,6 +64,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/my-places", myPlaceRoutes);
 app.use("/api/places", placeRoutes);
 app.use("/api/my-bookings", bookingRoutes);
+app.use("/api/listings", listingRoutes);
 
 app.listen(7000, () => {
   console.log("server running on localhost:7000 :)");

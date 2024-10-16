@@ -21,12 +21,10 @@ const auth_1 = __importDefault(require("../middleware/auth"));
 const router = express_1.default.Router();
 router.post("/login", [
     (0, express_validator_1.check)("email", "Email is required").isEmail(),
-    (0, express_validator_1.check)("password", "Password with 6 characters or more is required")
-        .isEmail()
-        .isLength({ min: 6 }),
+    (0, express_validator_1.check)("password", "Password with 6 characters or more is required").isLength({ min: 6 }),
 ], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
-    if (errors.isEmpty()) {
+    if (!errors.isEmpty()) {
         return res.status(400).json({ message: errors.array() });
     }
     const { email, password } = req.body;
@@ -45,6 +43,7 @@ router.post("/login", [
         res.cookie("auth_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : undefined,
             maxAge: 86400000,
         });
         res.status(200).json({ userId: user._id });
@@ -59,6 +58,9 @@ router.get("/validate-token", auth_1.default, (req, res) => {
 });
 router.post("/logout", (req, res) => {
     res.cookie("auth_token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : undefined,
         expires: new Date(0),
     });
     res.send();

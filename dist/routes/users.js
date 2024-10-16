@@ -16,7 +16,23 @@ const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../models/user"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_validator_1 = require("express-validator");
+const auth_1 = __importDefault(require("../middleware/auth"));
 const router = express_1.default.Router();
+router.get("/me", auth_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //user does not need to know id of current user since in http cookie - more secure
+    const userId = req.userId;
+    try {
+        const user = yield user_1.default.findById(userId).select("-password");
+        if (!user) {
+            return res.status(400).json({ message: "user not found" });
+        }
+        res.json(user);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "something went wrong" });
+    }
+}));
 router.post("/register", [(0, express_validator_1.check)("firstName", "First name is required").isString()], [(0, express_validator_1.check)("lastName", "Last name is required").isString()], [(0, express_validator_1.check)("email", "Email name is required").isEmail()], [
     (0, express_validator_1.check)("password", "Password with 6 or more characters is required").isLength({ min: 6 }),
 ], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -39,6 +55,7 @@ router.post("/register", [(0, express_validator_1.check)("firstName", "First nam
         res.cookie("auth_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : undefined,
             maxAge: 86400000,
         });
         return res.status(200).send({ message: "user registered" });
